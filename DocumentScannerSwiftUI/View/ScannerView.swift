@@ -6,13 +6,48 @@
 //
 
 import SwiftUI
+import VisionKit
 
-struct ScannerView: View {
-    var body: some View {
-        Text(/*@START_MENU_TOKEN@*/"Hello, World!"/*@END_MENU_TOKEN@*/)
+struct ScannerView: UIViewControllerRepresentable {
+    var didFinishWithError: (Error) -> ()
+    var didCancel: () -> ()
+    var didFinish: (VNDocumentCameraScan) -> ()
+    
+    func makeCoordinator() -> Coordinator {
+        Coordinator(parent: self)
     }
-}
-
-#Preview {
-    ScannerView()
+    
+    func makeUIViewController(context: Context) -> some UIViewController {
+        let controller: VNDocumentCameraViewController = VNDocumentCameraViewController()
+        controller.delegate = context.coordinator
+        return controller
+    }
+    
+    func updateUIViewController(_ uiViewController: UIViewControllerType, context: Context) {
+        
+    }
+    
+    class Coordinator: NSObject, VNDocumentCameraViewControllerDelegate {
+        var parent: ScannerView
+        
+        init(parent: ScannerView) {
+            self.parent = parent
+        }
+        
+        func documentCameraViewController(_ controller: VNDocumentCameraViewController, didFinishWith scan: VNDocumentCameraScan) {
+            parent.didFinish(scan)
+        }
+        
+        func documentCameraViewControllerDidCancel(_ controller: VNDocumentCameraViewController) {
+            parent.didCancel()
+        }
+        
+        func documentCameraViewController(_ controller: VNDocumentCameraViewController, didFailWithError error: any Error) {
+            parent.didFinishWithError(error)
+        }
+        
+    }
+    
+    
+    
 }
